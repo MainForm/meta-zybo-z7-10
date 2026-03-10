@@ -1,41 +1,76 @@
-This README file contains information on the contents of the meta-zybo-z7-10 layer.
+meta-zybo-z7-10
+================
 
-Please see the corresponding sections below for details.
+This layer provides board support for the Digilent Zybo Z7-10 board.
+It is intended for Yocto/PetaLinux based builds targeting the AMD Xilinx
+Zynq-7000 SoC used on Zybo Z7-10.
+
+The layer currently contains:
+
+- A machine configuration for `zybo-z7-10`
+- A local XSA integration for the XSCT based flow
+- A custom Digilent Linux kernel recipe based on `linux-xlnx`
+
 
 Dependencies
 ============
 
-  URI: <first dependency>
-  branch: <branch name>
+This layer depends on the following Yocto layers being available in the build:
 
-  URI: <second dependency>
-  branch: <branch name>
+- `poky/meta`
+  Core OpenEmbedded metadata required by all builds.
 
-  .
-  .
-  .
+- `meta-xilinx/meta-xilinx-core`
+  Provides the Xilinx machine infrastructure and the base `linux-xlnx`
+  kernel include used by this layer.
 
-Patches
-=======
+- `meta-xilinx-tools`
+  Provides the `external-hdf` recipe used to import the local
+  `system.xsa` hardware description into the build.
 
-Please submit any patches against the meta-zybo-z7-10 layer to the xxxx mailing list (xxxx@zzzz.org)
-and cc: the maintainer:
+- `meta-petalinux`
+  Required when using the XSCT based PetaLinux style flow enabled by this
+  layer configuration.
 
-Maintainer: XXX YYYYYY <xxx.yyyyyy@zzzzz.com>
-
-Table of Contents
-=================
-
-  I. Adding the meta-zybo-z7-10 layer to your build
- II. Misc
+At the layer metadata level, `conf/layer.conf` declares only `core` as a
+formal dependency. In practice, the machine and kernel content in this layer
+also rely on the Xilinx and PetaLinux layers listed above.
 
 
-I. Adding the meta-zybo-z7-10 layer to your build
-=================================================
-
-Run 'bitbake-layers add-layer meta-zybo-z7-10'
-
-II. Misc
+Contents
 ========
 
---- replace with specific information about the meta-zybo-z7-10 layer ---
+- `conf/machine/zybo-z7-10.conf`
+  Machine definition for the Zybo Z7-10 board.
+
+- `files/zybo-z7-10/system.xsa`
+  Local hardware handoff archive used by the XSCT flow.
+  This file is included in BSP which is provided the Digilent.
+  (https://digilent.com/reference/lib/exe/fetch.php?tok=f922bf&media=https%3A%2F%2Fgithub.com%2FDigilent%2FZybo-Z7%2Freleases%2Ftag%2F10%2FPetalinux%2F2022.1-1%2FZybo-Z7-10-Petalinux-2022-1.bsp)
+
+- `recipes-bsp/hdf/external-hdf_%.bbappend`
+  Extends `external-hdf` so the XSA can be fetched from this layer.
+
+- `recipes-kernel/linux/linux-xlnx-digilent_5.15_v2022.1.bb`
+  Custom kernel recipe using Digilent's `linux-digilent` source tree.
+
+
+Adding The Layer
+================
+
+Add the layer to `bblayers.conf`:
+
+  bitbake-layers add-layer ../sources/meta-zybo-z7-10
+
+Then select the machine in `local.conf`:
+
+  MACHINE ??= "zybo-z7-10"
+
+
+Notes
+=====
+
+- The current kernel recipe is based on Digilent's 5.15 kernel branch.
+- The hardware platform is supplied from `system.xsa` stored in this layer,
+  rather than fetched from an external URL.
+- This layer is compatible with the `scarthgap` Yocto release series.
