@@ -10,6 +10,7 @@ The layer currently contains:
 - A machine configuration for `zybo-z7-10`
 - A local XSA integration for the XSCT based flow
 - A custom Digilent Linux kernel recipe based on `linux-xlnx`
+- An initial BSP-based device tree customization layer
 
 
 Dependencies
@@ -45,11 +46,18 @@ Contents
 
 - `files/zybo-z7-10/system.xsa`
   Local hardware handoff archive used by the XSCT flow.
-  This file is included in BSP which is provided the Digilent.
-  (https://digilent.com/reference/lib/exe/fetch.php?tok=f922bf&media=https%3A%2F%2Fgithub.com%2FDigilent%2FZybo-Z7%2Freleases%2Ftag%2F10%2FPetalinux%2F2022.1-1%2FZybo-Z7-10-Petalinux-2022-1.bsp)
+  This file is taken from the Digilent Zybo Z7-10 PetaLinux BSP.
 
 - `recipes-bsp/hdf/external-hdf_%.bbappend`
   Extends `external-hdf` so the XSA can be fetched from this layer.
+
+- `recipes-bsp/device-tree/device-tree.bbappend`
+  Extends the `device-tree` recipe so board-specific DTSI files can be
+  supplied from this layer.
+
+- `recipes-bsp/device-tree/files/system-user.dtsi`
+  Initial BSP-derived device tree customization applied on top of the
+  generated base device tree.
 
 - `recipes-kernel/linux/linux-xlnx-digilent_5.15_v2022.1.bb`
   Custom kernel recipe using Digilent's `linux-digilent` source tree.
@@ -73,4 +81,6 @@ Notes
 - The current kernel recipe is based on Digilent's 5.15 kernel branch.
 - The hardware platform is supplied from `system.xsa` stored in this layer,
   rather than fetched from an external URL.
+- The device tree flow currently uses the generated base device tree plus
+  `system-user.dtsi` from this layer for board-specific customizations.
 - This layer is compatible with the `scarthgap` Yocto release series.
