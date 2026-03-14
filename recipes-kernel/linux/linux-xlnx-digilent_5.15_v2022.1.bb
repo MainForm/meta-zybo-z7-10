@@ -9,6 +9,7 @@ SRCREV_meta = "b75d71b7f2455467f2260d514040ccb44d4bdda5"
 KCONF_AUDIT_LEVEL = "0"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/linux-xlnx:"
+SRC_URI:append = " file://devtool-fragment.cfg"
 
 require recipes-kernel/linux/linux-xlnx.inc
 
