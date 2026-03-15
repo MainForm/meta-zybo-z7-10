@@ -10,6 +10,7 @@ KCONF_AUDIT_LEVEL = "0"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/linux-xlnx:"
 SRC_URI:append = " file://devtool-fragment.cfg"
+SRC_URI:append = "${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://wifi.cfg', '', d)}"
 
 require recipes-kernel/linux/linux-xlnx.inc
 
