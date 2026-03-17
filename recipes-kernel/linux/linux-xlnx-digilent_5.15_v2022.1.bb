@@ -17,3 +17,8 @@ require recipes-kernel/linux/linux-xlnx.inc
 PV = "${LINUX_VERSION}+git"
 PV .= "+v2022.1"
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI:append = " \
+    file://devtool-fragment.cfg \
+    "
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://wifi.cfg', '', d)}"
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'hdmi', ' file://hdmi.cfg', '', d)}"
