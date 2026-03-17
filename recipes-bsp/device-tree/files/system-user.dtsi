@@ -1,10 +1,13 @@
+/include/ "system-conf.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/media/xilinx-vip.h>
 
 / {
 	model = "Zynq Zybo Z7 Development Board";
 	compatible = "digilent,zynq-zyboz7", "xlnx,zynq-7000";
 
 	chosen {
-		bootargs = "console=ttyPS0,115200 earlyprintk uio_pdrv_genirq.of_id=generic-uio";
+		bootargs = "console=tty0 console=ttyPS0,115200 earlyprintk uio_pdrv_genirq.of_id=generic-uio";
 	};
 
 	usb_phy0: usb_phy@0 {
