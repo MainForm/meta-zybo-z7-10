@@ -1,0 +1,7 @@
+# Zybo Z7-10 SD image layout.
+# Keep the boot partition compatible with the Xilinx default SD image layout.
+part    /boot   --source rootfs     --change-directory=boot     --fixed-size=512M   --fstype=vfat   --use-label     --label boot    --active   --align 4
+
+# Give the root filesystem a fixed size so Docker, apt caches, and application
+# data have predictable free space on target regardless of the rootfs payload size.
+part    /       --source rootfs     --exclude-path=boot/         --fixed-size=16384M --fstype=ext4   --use-label     --label root                --align 4

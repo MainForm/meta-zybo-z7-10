@@ -5,12 +5,9 @@ This layer provides board support for the Digilent Zybo Z7-10 board.
 It is intended for Yocto/PetaLinux based builds targeting the AMD Xilinx
 Zynq-7000 SoC used on Zybo Z7-10.
 
-The layer currently contains:
-
-- A machine configuration for `zybo-z7-10`
-- A local XSA integration for the XSCT based flow
-- A custom Digilent Linux kernel recipe based on `linux-xlnx`
-- An initial BSP-based device tree customization layer
+The layer bundles the machine definition, hardware handoff, bootloader
+customization, device-tree extensions, and kernel metadata needed to build
+an image for the board from a single, self-contained layer.
 
 
 Dependencies
@@ -38,29 +35,109 @@ formal dependency. In practice, the machine and kernel content in this layer
 also rely on the Xilinx and PetaLinux layers listed above.
 
 
-Contents
-========
+Layer Overview
+==============
 
 - `conf/machine/zybo-z7-10.conf`
-  Machine definition for the Zybo Z7-10 board.
+  Defines the `zybo-z7-10` machine, selects `linux-xlnx-digilent` as the
+  kernel provider, configures serial console defaults, sets U-Boot load
+  addresses, and points the XSCT flow at the local `system.xsa`.
 
 - `files/zybo-z7-10/system.xsa`
-  Local hardware handoff archive used by the XSCT flow.
-  This file is taken from the Digilent Zybo Z7-10 PetaLinux BSP.
+  Local hardware handoff archive consumed by `external-hdf` during the build.
+  This keeps the hardware platform under version control with the layer.
 
 - `recipes-bsp/hdf/external-hdf_%.bbappend`
-  Extends `external-hdf` so the XSA can be fetched from this layer.
+  Extends `external-hdf` so the local `system.xsa` can be located through
+  the layer search path.
 
 - `recipes-bsp/device-tree/device-tree.bbappend`
-  Extends the `device-tree` recipe so board-specific DTSI files can be
-  supplied from this layer.
+  Adds `system-conf.dtsi` and `system-user.dtsi` to the generated device-tree
+  flow and extends kernel include paths used during device-tree generation.
 
-- `recipes-bsp/device-tree/files/system-user.dtsi`
-  Initial BSP-derived device tree customization applied on top of the
-  generated base device tree.
+- `recipes-bsp/u-boot/u-boot-xlnx_%.bbappend`
+  Adds Zybo-specific U-Boot configuration fragments and installs
+  `platform-top.h` into the U-Boot source tree during configuration.
 
 - `recipes-kernel/linux/linux-xlnx-digilent_5.15_v2022.1.bb`
-  Custom kernel recipe using Digilent's `linux-digilent` source tree.
+  Custom kernel recipe based on Digilent's `linux-digilent` tree. The recipe
+  conditionally enables extra fragments such as `wifi.cfg`, `hdmi.cfg`, and
+  `docker.cfg` when the corresponding `DISTRO_FEATURES` are enabled.
+
+
+Machine
+=======
+
+The machine provided by this layer is:
+
+- `zybo-z7-10`
+
+This machine inherits the generic Zynq machine support from Xilinx metadata
+and specializes it for the Digilent board by setting:
+
+- the preferred kernel provider to `linux-xlnx-digilent`
+- the serial console to `ttyPS0` at `115200`
+- the XSCT/XSA-based hardware import flow
+- board-specific device-tree includes through `system-user.dtsi`
+
+
+Recipe Configuration
+====================
+
+Most of the behavior exposed by this layer is controlled through the machine
+selection and `DISTRO_FEATURES`.
+
+1. Add the layer to `bblayers.conf`:
+
+   `bitbake-layers add-layer ../sources/meta-zybo-z7-10`
+
+2. Select the machine in `local.conf`:
+
+   `MACHINE ??= "zybo-z7-10"`
+
+3. Enable board-related runtime features in `local.conf` as needed:
+
+   `DISTRO_FEATURES:append = " wifi"`
+
+   `DISTRO_FEATURES:append = " hdmi"`
+
+   `DISTRO_FEATURES:append = " virtualization"`
+
+4. Configure the SD card image layout with a WKS file when building `wic`
+   images:
+
+   `WKS_FILE = "zybo-z7-10_sd.wks"`
+
+   `WKS_FILES = "zybo-z7-10_sd.wks"`
+
+   The default layout is defined in `wic/zybo-z7-10_sd.wks`. Partition
+   capacity is controlled by the `--fixed-size` options on each `part`
+   entry. For example:
+
+   - `part /boot ... --fixed-size=512M ...`
+   - `part / ... --fixed-size=16384M ...`
+
+   Increase or decrease these values to change the generated SD image
+   capacity. For example, changing the root partition to `--fixed-size=8192M`
+   creates an 8 GiB root filesystem partition in the final `.wic` image.
+
+When these features are enabled, the kernel recipe pulls in the matching
+configuration fragments from this layer:
+
+- `wifi` enables `recipes-kernel/linux/linux-xlnx-digilent/wifi.cfg`
+- `hdmi` enables `recipes-kernel/linux/linux-xlnx-digilent/hdmi.cfg`
+- `virtualization` enables `recipes-kernel/linux/linux-xlnx/docker.cfg`
+
+Device-tree customization can be done by editing:
+
+- `recipes-bsp/device-tree/files/system-conf.dtsi`
+- `recipes-bsp/device-tree/files/system-user.dtsi`
+
+U-Boot customization can be done by editing:
+
+- `recipes-bsp/u-boot/files/bsp.cfg`
+- `recipes-bsp/u-boot/files/platform-top.h`
+- `recipes-bsp/u-boot/files/user_2021-09-20-14-21-00.cfg`
 
 
 Adding The Layer
@@ -78,9 +155,10 @@ Then select the machine in `local.conf`:
 Notes
 =====
 
-- The current kernel recipe is based on Digilent's 5.15 kernel branch.
-- The hardware platform is supplied from `system.xsa` stored in this layer,
+- The current kernel recipe is based on Digilent's 5.15 kernel branch
+  `digilent_rebase_v5.15_LTS_2022.1`.
+- The hardware platform is supplied from `system.xsa` stored in this layer
   rather than fetched from an external URL.
-- The device tree flow currently uses the generated base device tree plus
-  `system-user.dtsi` from this layer for board-specific customizations.
+- The device-tree flow uses the generated base device tree together with
+  `system-conf.dtsi` and `system-user.dtsi` from this layer.
 - This layer is compatible with the `scarthgap` Yocto release series.

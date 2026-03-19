@@ -22,3 +22,4 @@ SRC_URI:append = " \
     "
 SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://wifi.cfg', '', d)}"
 SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'hdmi', ' file://hdmi.cfg', '', d)}"
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'virtualization', ' file://docker.cfg', '', d)}"
