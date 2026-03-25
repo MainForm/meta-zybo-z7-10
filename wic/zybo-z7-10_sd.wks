@@ -2,6 +2,7 @@
 # Keep the boot partition compatible with the Xilinx default SD image layout.
 part    /boot   --source rootfs     --change-directory=boot     --fixed-size=512M   --fstype=vfat   --use-label     --label boot    --active   --align 4
 
-# Give the root filesystem a fixed size so Docker, apt caches, and application
-# data have predictable free space on target regardless of the rootfs payload size.
-part    /       --source rootfs     --exclude-path=boot/         --fixed-size=16384M --fstype=ext4   --use-label     --label root                --align 4
+# Keep the root partition fixed to the BitBake-computed ROOTFS_SIZE so
+# local.conf values such as IMAGE_ROOTFS_SIZE and IMAGE_ROOTFS_EXTRA_SPACE
+# directly control the final .wic capacity without editing this .wks file.
+part    /       --source rootfs     --exclude-path=boot/     --fixed-size=${ROOTFS_SIZE}K   --fstype=ext4   --use-label     --label root                --align 4

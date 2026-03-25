@@ -106,20 +106,38 @@ selection and `DISTRO_FEATURES`.
 4. Configure the SD card image layout with a WKS file when building `wic`
    images:
 
-   `WKS_FILE = "zybo-z7-10_sd.wks"`
+   The default Zybo Z7-10 WIC layout is selected from the machine
+   configuration in `conf/machine/zybo-z7-10.conf`:
 
-   `WKS_FILES = "zybo-z7-10_sd.wks"`
+   `WKS_FILE ?= "zybo-z7-10_sd.wks"`
 
-   The default layout is defined in `wic/zybo-z7-10_sd.wks`. Partition
-   capacity is controlled by the `--fixed-size` options on each `part`
-   entry. For example:
+   `WKS_FILES ?= "zybo-z7-10_sd.wks"`
 
-   - `part /boot ... --fixed-size=512M ...`
-   - `part / ... --fixed-size=16384M ...`
+   The default layout is defined in `wic/zybo-z7-10_sd.wks`. The boot
+   partition capacity is still controlled directly by its
+   `--fixed-size` setting, but the root partition no longer needs a
+   manually edited fixed-size value in the `.wks` file.
 
-   Increase or decrease these values to change the generated SD image
-   capacity. For example, changing the root partition to `--fixed-size=8192M`
-   creates an 8 GiB root filesystem partition in the final `.wic` image.
+   The root partition uses BitBake's computed `ROOTFS_SIZE`, and that
+   value is derived from the `local.conf` settings
+   `IMAGE_ROOTFS_SIZE` and `IMAGE_ROOTFS_EXTRA_SPACE`. Because of this,
+   changing those two variables automatically updates the final `.wic`
+   root partition capacity. For example:
+
+   - `IMAGE_ROOTFS_SIZE = "6291456"`
+   - `IMAGE_ROOTFS_EXTRA_SPACE = "524288"`
+
+   To change the root filesystem size, update only these values in
+   `build_zybo-z7-10/conf/local.conf`:
+
+   - `IMAGE_ROOTFS_SIZE`
+   - `IMAGE_ROOTFS_EXTRA_SPACE`
+
+   No manual `--fixed-size` update is required in
+   `wic/zybo-z7-10_sd.wks`; the final `.wic` image picks up the new
+   root partition size automatically during the build. If you need a
+   different WIC layout for a local experiment, you can still override
+   `WKS_FILE` or `WKS_FILES` from `local.conf`.
 
 When these features are enabled, the kernel recipe pulls in the matching
 configuration fragments from this layer:
