@@ -8,18 +8,21 @@ SRCREV_meta = "b75d71b7f2455467f2260d514040ccb44d4bdda5"
 
 KCONF_AUDIT_LEVEL = "0"
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/linux-xlnx:"
-SRC_URI:append = " file://devtool-fragment.cfg"
-SRC_URI:append = "${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://wifi.cfg', '', d)}"
-
 require recipes-kernel/linux/linux-xlnx.inc
 
 PV = "${LINUX_VERSION}+git"
 PV .= "+v2022.1"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI:append = " \
-    file://usb.cfg \
+    file://0002-arm-kconfig-default-disable-gcc-plugins-stackprotec.patch \
+    file://devtool-fragment.cfg \
     "
-SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://wifi.cfg', '', d)}"
-SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'hdmi', ' file://hdmi.cfg', '', d)}"
-SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'virtualization', ' file://docker.cfg', '', d)}"
+
+SRC_URI:append = " \
+    file://peripherals/usb.cfg \
+    "
+
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', ' file://peripherals/wifi.cfg', '', d)}"
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'hdmi', ' file://peripherals/hdmi.cfg', '', d)}"
+SRC_URI:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'virtualization', ' file://peripherals/docker.cfg', '', d)}"
