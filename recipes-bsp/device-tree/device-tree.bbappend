@@ -1,6 +1,9 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI:append = " file://system-conf.dtsi file://system-user.dtsi"
+SRC_URI:append = " \
+    file://system-conf.dtsi \
+    file://system-user.dtsi \
+"
 
 KERNEL_INCLUDE:append = " \
     ${STAGING_KERNEL_DIR}/include \
