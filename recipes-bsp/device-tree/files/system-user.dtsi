@@ -49,12 +49,13 @@
 	};
 
 	/*
-	 * Manual capture node because the SDT flow does not automatically build
-	 * the final xlnx,video endpoint for mipi_csi2_rx_ss + axi_vdma.
+	 * XSCT generates the CSI2 RX and AXI VDMA nodes from the XSA, but it
+	 * doesn't assemble the final capture node that exposes the DMA-backed
+	 * /dev/video pipeline. Keep that graph wiring here.
 	 */
 	vcap_pcam: vcap-pcam {
 		compatible = "xlnx,video";
-		dmas = <&axi_vdma_0 0>;
+		dmas = <&axi_vdma_0 1>;
 		dma-names = "port0";
 		status = "okay";
 
@@ -67,7 +68,7 @@
 				direction = "input";
 
 				vcap_pcam_in: endpoint {
-					remote-endpoint = <&pcam_csi_out>;
+					remote-endpoint = <&mipi_csirx_outmipi_csi2_rx_ss_0>;
 				};
 			};
 		};
@@ -76,6 +77,13 @@
 
 &axi_vdma_0 {
 	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	phy_type = "ulpi";
+	usb-phy = <&usb_phy0>;
 };
 
 &i2c0 {
@@ -91,14 +99,15 @@
 		AVDD-supply = <&pcam_avdd>;
 		DVDD-supply = <&pcam_dvdd>;
 		DOVDD-supply = <&pcam_dovdd>;
-		powerdown-gpios = <&gpio0 54 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio0 54 GPIO_ACTIVE_LOW>;
 		status = "okay";
 
 		port {
 			pcam_sensor_out: endpoint {
 				clock-lanes = <0>;
 				data-lanes = <1 2>;
-				remote-endpoint = <&pcam_csi_in>;
+				link-frequencies = /bits/ 64 <400000000>;
+				remote-endpoint = <&mipi_csi_inmipi_csi2_rx_ss_0>;
 			};
 		};
 	};
@@ -106,27 +115,17 @@
 
 &mipi_csi2_rx_ss_0 {
 	status = "okay";
+};
 
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
+&mipi_csi_inmipi_csi2_rx_ss_0 {
+	clock-lanes = <0>;
+	data-lanes = <1 2>;
+	link-frequencies = /bits/ 64 <400000000>;
+	remote-endpoint = <&pcam_sensor_out>;
+};
 
-		port@0 {
-			reg = <0>;
-
-			pcam_csi_in: endpoint {
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
-				remote-endpoint = <&pcam_sensor_out>;
-			};
-		};
-
-		port@1 {
-			reg = <1>;
-
-			pcam_csi_out: endpoint {
-				remote-endpoint = <&vcap_pcam_in>;
-			};
-		};
-	};
+&mipi_csirx_outmipi_csi2_rx_ss_0 {
+	xlnx,video-format = <XVIP_VF_MONO_SENSOR>;
+	xlnx,video-width = <10>;
+	remote-endpoint = <&vcap_pcam_in>;
 };
