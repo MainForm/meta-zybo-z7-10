@@ -17,7 +17,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI:append = " \
     file://0002-arm-kconfig-default-disable-gcc-plugins-stackprotec.patch \
     file://0003-media-xilinx-csi2rxss-initialize-media-entity-f.patch \
-    file://0004-media-i2c-ov5640-add-raw10-mbus-format-support.patch \
     file://devtool-fragment.cfg \
     "
 
