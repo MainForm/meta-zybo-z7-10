@@ -1,0 +1,16 @@
+diff --git a/drivers/media/platform/xilinx/xilinx-dma.c b/drivers/media/platform/xilinx/xilinx-dma.c
+index ab9b58538189..73fe31713d0c 100644
+--- a/drivers/media/platform/xilinx/xilinx-dma.c
++++ b/drivers/media/platform/xilinx/xilinx-dma.c
+@@ -414,10 +414,10 @@ static void xvip_dma_buffer_queue(struct vb2_buffer *vb)
+ 		xvip_width_padding_factor(pix_mp->pixelformat,
+ 					  &padding_factor_nume,
+ 					  &padding_factor_deno);
+ 		xvip_bpl_scaling_factor(pix_mp->pixelformat, &bpl_nume,
+ 					&bpl_deno);
+-		dma->xt.frame_size = dma->fmtinfo->num_planes;
++		dma->xt.frame_size = dma->fmtinfo->buffers;
+ 
+ 		size = ((size_t)dma->r.width * dma->fmtinfo->bpl_factor *
+ 			padding_factor_nume * bpl_nume) /
+ 			((size_t)padding_factor_deno * bpl_deno);
