@@ -15,13 +15,8 @@ PV .= "+v2022.1"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI:append = " \
-<<<<<<< HEAD
     file://devtool-fragment.cfg \
     file://usb.cfg \
-=======
-    file://0002-arm-kconfig-default-disable-gcc-plugins-stackprotec.patch \
-    file://devtool-fragment.cfg \
->>>>>>> 9b93cac (meta-zybo-z7-10: disable GCC plugins defaults for Zybo kernel build)
     "
 
 SRC_URI:append = " \
