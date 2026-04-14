@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Sun, 5 Apr 2026 00:00:00 +0900
+Subject: [PATCH] arm: kconfig: default-disable gcc plugins and per-task stack protector
+
+This vendor 5.15 kernel tree is being built with GCC 13.x from the AMD/Yocto
+toolchain. When Kconfig falls back to defaults during non-interactive
+configuration, GCC plugins and ARM per-task stack protector get enabled and the
+build later fails while compiling gcc plugin support code.
+
+Default these options to `n` so unattended config updates stay buildable.
+
+Signed-off-by: Codex <codex@openai.com>
+---
+ arch/arm/Kconfig             | 2 +-
+ scripts/gcc-plugins/Kconfig | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 84aa2588ff4f..8e84c90878d8 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1607,7 +1607,7 @@ config STACKPROTECTOR_PER_TASK
+ 	bool "Use a unique stack canary value for each task"
+ 	depends on GCC_PLUGINS && STACKPROTECTOR && SMP && !XIP_DEFLATED_DATA
+ 	select GCC_PLUGIN_ARM_SSP_PER_TASK
+-	default y
++	default n
+ 	help
+ 	  Due to the fact that GCC uses an ordinary symbol reference from
+ 	  which to load the value of the stack canary, this value can only
+diff --git a/scripts/gcc-plugins/Kconfig b/scripts/gcc-plugins/Kconfig
+index 49aa7e1d5973..809f2f8485d4 100644
+--- a/scripts/gcc-plugins/Kconfig
++++ b/scripts/gcc-plugins/Kconfig
+@@ -8,7 +8,7 @@ menuconfig GCC_PLUGINS
+ 	bool "GCC plugins"
+ 	depends on HAVE_GCC_PLUGINS
+ 	depends on CC_IS_GCC
+ 	depends on $(success,test -e $(shell,$(CC) -print-file-name=plugin)/include/plugin-version.h)
+-	default y
++	default n
+ 	help
+ 	  GCC plugins are loadable modules that provide extra features to the
+ 	  compiler. They are useful for runtime instrumentation and static analysis.
+-- 
+2.43.0
+

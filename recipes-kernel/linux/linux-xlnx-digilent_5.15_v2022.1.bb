@@ -14,12 +14,13 @@ PV = "${LINUX_VERSION}+git"
 PV .= "+v2022.1"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+
 SRC_URI:append = " \
-    file://devtool-fragment.cfg \
-    file://usb.cfg \
+    file://patches/0001-arm-kconfig-default-disable-gcc-plugins-stackprotec.patch \
     "
 
 SRC_URI:append = " \
+    file://devtool-fragment.cfg \
     file://peripherals/usb.cfg \
     "
 
