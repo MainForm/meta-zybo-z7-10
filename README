@@ -46,6 +46,9 @@ Layer Overview
 - `files/zybo-z7-10/system.xsa`
   Local hardware handoff archive consumed by `external-hdf` during the build.
   This keeps the hardware platform under version control with the layer.
+  If you need to review or regenerate the XSA, refer to the Vivado project
+  repository at
+  `https://github.com/MainForm/LIG-Nex1_Team-Project_FPGA-Vivado`.
 
 - `recipes-bsp/hdf/external-hdf_%.bbappend`
   Extends `external-hdf` so the local `system.xsa` can be located through
@@ -177,6 +180,8 @@ Notes
   `digilent_rebase_v5.15_LTS_2022.1`.
 - The hardware platform is supplied from `system.xsa` stored in this layer
   rather than fetched from an external URL.
+- The Vivado project used as the reference source for the XSA is available at
+  `https://github.com/MainForm/LIG-Nex1_Team-Project_FPGA-Vivado`.
 - The device-tree flow uses the generated base device tree together with
   `system-conf.dtsi` and `system-user.dtsi` from this layer.
 - This layer is compatible with the `scarthgap` Yocto release series.

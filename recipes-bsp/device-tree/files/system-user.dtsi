@@ -1,4 +1,4 @@
-#include "system-conf.dtsi"
+/include/ "system-conf.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/media/xilinx-vip.h>
 
@@ -15,7 +15,7 @@
 	};
 
 	chosen {
-		bootargs = "console=tty0 console=ttyPS0,115200 earlyprintk uio_pdrv_genirq.of_id=generic-uio";
+		bootargs = "console=tty0 console=ttyPS0,115200 earlyprintk uio_pdrv_genirq.of_id=generic-uio mem=1008M";
 	};
 
 	pcam_clk: pcam_clk {
@@ -39,7 +39,6 @@
 		regulator-name = "AVDD_reg";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
-
 	};
 
 	DVDD: fixed_regulator_DVDD@2 {
@@ -48,10 +47,34 @@
 		regulator-min-microvolt = <1500000>;
 		regulator-max-microvolt = <1500000>;
 	};
+
+};
+
+&amba_pl {
+	vcap_mipi_csi2_rx_subsystem_0 {
+		compatible = "xlnx,video";
+		dmas = <&v_frmbuf_wr_0 0>;
+		dma-names = "port0";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				direction = "input";
+
+				mipi_csi2_rx_subsystem_0mipi_csi2_rx_subsystem_0: endpoint {
+					remote-endpoint = <&mipi_csirx_outmipi_csi2_rx_subsystem_0>;
+				};
+			};
+		};
+	};
 };
 
 &gem0 {
 	phy-handle = <&ethernet_phy>;
+
 	ethernet_phy: ethernet-phy@0 {
 		device_type = "ethernet-phy";
 		reg = <0>;
@@ -65,11 +88,11 @@
 };
 
 &flash0 {
-        compatible = "jedec,spi-nor";
-        reg = <0x0>;
-        spi-tx-bus-width = <1>;
-        spi-rx-bus-width = <4>;
-        spi-max-frequency = <100000000>;
+	compatible = "jedec,spi-nor";
+	reg = <0x0>;
+	spi-tx-bus-width = <1>;
+	spi-rx-bus-width = <4>;
+	spi-max-frequency = <100000000>;
 };
 
 &uart0 {
@@ -77,14 +100,13 @@
 	current-speed = <115200>;
 };
 
-
 &i2c0 {
 	clock-frequency = <100000>;
 	status = "okay";
 };
 
 &i2c1 {
-	ssm2603: ssm2603@1a{
+	ssm2603: ssm2603@1a {
 		#sound-dai-cells = <0>;
 		compatible = "adi,ssm2603";
 		reg = <0x1a>;
@@ -97,9 +119,9 @@
 		reg = <0x3c>;
 		clocks = <&pcam_clk>;
 		clock-names = "xclk";
-		DOVDD-supply = <&DOVDD>; /* 1.8v */
-		AVDD-supply = <&AVDD>;  /* 2.8v */
-		DVDD-supply = <&DVDD>;  /* 1.5v */
+		DOVDD-supply = <&DOVDD>;
+		AVDD-supply = <&AVDD>;
+		DVDD-supply = <&DVDD>;
 
 		port {
 			ov5640_to_mipi_csi2: endpoint {
@@ -112,65 +134,65 @@
 };
 
 &mipi_csi2_rx_subsystem_0 {
-        video-reset-gpios = <&gpio0 57 GPIO_ACTIVE_LOW>;
+	video-reset-gpios = <&gpio0 57 GPIO_ACTIVE_LOW>;
 	xlnx,cal-mode = "FIXED";
 	xlnx,clk-io-swap = "false";
-                        xlnx,clk-lane-io-position = <0x0>;
-                        xlnx,clk-lp-io-swap = "false";
-                        xlnx,csi-en-activelanes = "false";
-                        xlnx,csi-en-crc = "true";
-                        xlnx,csi-filter-userdatatype = "false";
-                        xlnx,csi-opt1-regs = "false";
-                        xlnx,csi-pxl-format = <0x1e>;
-                        xlnx,csi2rx-dbg = <0x0>;
-                        xlnx,data-lane0-io-position = <0x2>;
-                        xlnx,data-lane1-io-position = <0x4>;
-                        xlnx,data-lane2-io-position = <0x6>;
-                        xlnx,data-lane3-io-position = <0x8>;
-                        xlnx,dl0-io-swap = "false";
-                        xlnx,dl0-lp-io-swap = "false";
-                        xlnx,dl1-io-swap = "false";
-                        xlnx,dl1-lp-io-swap = "false";
-                        xlnx,dl2-io-swap = "false";
-                        xlnx,dl2-lp-io-swap = "false";
-                        xlnx,dl3-io-swap = "false";
-                        xlnx,dl3-lp-io-swap = "false";
-                        xlnx,dphy-lanes = <0x2>;
-                        xlnx,dphy-mode = "SLAVE";
-                        xlnx,en-bg0-pin0 = "false";
-                        xlnx,en-bg0-pin6 = "false";
-                        xlnx,en-bg1-pin0 = "false";
-                        xlnx,en-bg1-pin6 = "false";
-                        xlnx,en-bg2-pin0 = "false";
-                        xlnx,en-bg2-pin6 = "false";
-                        xlnx,en-bg3-pin0 = "false";
-                        xlnx,en-bg3-pin6 = "false";
-                        xlnx,en-clk300m = "false";
-                        xlnx,en-cnts-byte-clk = "false";
-                        xlnx,en-csi-v2-0 = "false";
-                        xlnx,en-exdesigns = "false";
-                        xlnx,en-timeout-regs = "false";
-                        xlnx,en-vcx = "false";
-                        xlnx,esc-timeout = <0x6400>;
-                        xlnx,exdes-board = "ZCU102";
-                        xlnx,exdes-config = "MIPI_Video_Pipe_Camera_to_Display";
-                        xlnx,exdes-fmc = "LI-IMX274MIPI-FMC V1.0 Single Sensor";
-                        xlnx,fifo-rd-en-control = "true";
-                        xlnx,hs-line-rate = <0x320>;
-                        xlnx,hs-settle-ns = <0x93>;
-                        xlnx,hs-timeout = <0x10005>;
-                        xlnx,idly-group-name = "mipi_csi2rx_idly_group";
-                        xlnx,idly-tap = <0x2>;
-                        xlnx,init = <0x186a0>;
-                        xlnx,is-7series = "true";
-                        xlnx,is-versal = "false";
-                        xlnx,lprx-disable-extport = <0x0>;
-                        xlnx,mipi-slv-int = <0x0>;
-                        xlnx,ooc-vid-clk = "6.666";
-                        xlnx,rcve-alt-deskew-seq = "false";
-                        xlnx,rcve-deskew-seq = "false";
-                        xlnx,share-idlyctrl = "true";
-                        xlnx,stretch-line-rate = <0xdac>;
+	xlnx,clk-lane-io-position = <0x0>;
+	xlnx,clk-lp-io-swap = "false";
+	xlnx,csi-en-activelanes = "false";
+	xlnx,csi-en-crc = "true";
+	xlnx,csi-filter-userdatatype = "false";
+	xlnx,csi-opt1-regs = "false";
+	xlnx,csi-pxl-format = <0x1e>;
+	xlnx,csi2rx-dbg = <0x0>;
+	xlnx,data-lane0-io-position = <0x2>;
+	xlnx,data-lane1-io-position = <0x4>;
+	xlnx,data-lane2-io-position = <0x6>;
+	xlnx,data-lane3-io-position = <0x8>;
+	xlnx,dl0-io-swap = "false";
+	xlnx,dl0-lp-io-swap = "false";
+	xlnx,dl1-io-swap = "false";
+	xlnx,dl1-lp-io-swap = "false";
+	xlnx,dl2-io-swap = "false";
+	xlnx,dl2-lp-io-swap = "false";
+	xlnx,dl3-io-swap = "false";
+	xlnx,dl3-lp-io-swap = "false";
+	xlnx,dphy-lanes = <0x2>;
+	xlnx,dphy-mode = "SLAVE";
+	xlnx,en-bg0-pin0 = "false";
+	xlnx,en-bg0-pin6 = "false";
+	xlnx,en-bg1-pin0 = "false";
+	xlnx,en-bg1-pin6 = "false";
+	xlnx,en-bg2-pin0 = "false";
+	xlnx,en-bg2-pin6 = "false";
+	xlnx,en-bg3-pin0 = "false";
+	xlnx,en-bg3-pin6 = "false";
+	xlnx,en-clk300m = "false";
+	xlnx,en-cnts-byte-clk = "false";
+	xlnx,en-csi-v2-0 = "false";
+	xlnx,en-exdesigns = "false";
+	xlnx,en-timeout-regs = "false";
+	xlnx,en-vcx = "false";
+	xlnx,esc-timeout = <0x6400>;
+	xlnx,exdes-board = "ZCU102";
+	xlnx,exdes-config = "MIPI_Video_Pipe_Camera_to_Display";
+	xlnx,exdes-fmc = "LI-IMX274MIPI-FMC V1.0 Single Sensor";
+	xlnx,fifo-rd-en-control = "true";
+	xlnx,hs-line-rate = <0x320>;
+	xlnx,hs-settle-ns = <0x93>;
+	xlnx,hs-timeout = <0x10005>;
+	xlnx,idly-group-name = "mipi_csi2rx_idly_group";
+	xlnx,idly-tap = <0x2>;
+	xlnx,init = <0x186a0>;
+	xlnx,is-7series = "true";
+	xlnx,is-versal = "false";
+	xlnx,lprx-disable-extport = <0x0>;
+	xlnx,mipi-slv-int = <0x0>;
+	xlnx,ooc-vid-clk = "6.666";
+	xlnx,rcve-alt-deskew-seq = "false";
+	xlnx,rcve-deskew-seq = "false";
+	xlnx,share-idlyctrl = "true";
+	xlnx,stretch-line-rate = <0xdac>;
 };
 
 &mipi_csi_port0mipi_csi2_rx_subsystem_0 {
@@ -181,6 +203,10 @@
 	xlnx,video-format = <XVIP_VF_YUV_422>;
 };
 
+&mipi_csirx_outmipi_csi2_rx_subsystem_0 {
+	remote-endpoint = <&mipi_csi2_rx_subsystem_0mipi_csi2_rx_subsystem_0>;
+};
+
 &mipi_csi_inmipi_csi2_rx_subsystem_0 {
 	remote-endpoint = <&ov5640_to_mipi_csi2>;
 };
@@ -189,3 +215,20 @@
 	reset-gpios = <&gpio0 54 GPIO_ACTIVE_LOW>;
 };
 
+/*
+ * HDMI TX path:
+ *   PCAM -> MIPI CSI-2 -> v_frmbuf_wr -> DDR -> v_frmbuf_rd
+ *        -> YUV422/RGB888 -> AXI4S video out -> HDMI
+ *
+ * v_frmbuf_rd and VTC are controlled from userspace through UIO.
+ */
+&v_frmbuf_rd_0 {
+	compatible = "generic-uio";
+	status = "okay";
+	reset-gpios = <&gpio0 54 GPIO_ACTIVE_LOW>;
+};
+
+&v_tc_0 {
+	compatible = "generic-uio";
+	status = "okay";
+};
